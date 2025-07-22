@@ -1,6 +1,6 @@
 # NLP Pipelines
 
-**NLP Pipelines** is a modular Python library for building flexible natural language processing pipelines. It supports dataset management, preprocessing, vectorization, keyword extraction, topic modeling, classification, and evaluation.
+**NLP Pipelines** is a modular Python library for building flexible natural language processing pipelines. It supports dataset management, preprocessing, vectorization, labeling/keyword extraction, topic modeling, classification, and evaluation.
 
 ---
 
@@ -12,12 +12,27 @@
 Located in [`dataset/`](nlp_pipelines/dataset/)
 
 A `Dataset` object is the core data container, and includes:
-- `text`: a list of documents (required)
+- `texts`: a list of documents (required)
 - `original_text`: a copy of the original text, set only by the first preprocessing step
+
+A dataset (including the below) has methods which allow for controlled access of the dataset to enable some filtering, or train/test split.
+- `constructor(texts, labels)` - Makes a dataset from a list-like for texts, and optinally a set of labels in the same order.
+- `.get(labeled=True, count=100, ratio=0.5, seed=None)` - Makes a new dataset from the original. set labeled=True to only consider labeled documents. If count is set, returns at most count documents. If ratio is set, then returns at most that ratio of documents (if labeled set, then the set is of the labeled documents). Be careful when using both ratio and count. Set seed to seed the random selection process and get consistent splits.
+- `.split(labeled=True, splitLabeled=True, count=100, ratio=0.5, seed=None)` - Performs like get, but returns both the selected part and the other. The splitLabeled argument determines 
+
+To use for cross validation, follow this pseudocode:
+```python
+...
+for i in range(5):
+    val_set = dataset.get(labeled=True, ratio=0.2, seed=None)
+    y_hat = classifier.preduct(val_set)
+    evaluator.compare(val_set, y_hat)
+    ...
+```
 
 ### LabeledDataset
 A `LabeledDataset` conceptually extends a `Dataset` and adds:
-- `truth`: labels such as keywords or class labels
+- `truth`: true labels such as keywords or class labels (named 'truth' to not confuse with labeler predictions)
 
 The definition of a `LabeledDataset` is a dataset with nonnull `truth`; it is not a separate class in code.
 
@@ -34,7 +49,7 @@ A `ResultDataset` conceptually extends a `Dataset` and adds:
 - `results`: results from the method
 
 The definition of a `ResultDataset` is a dataset with nonnull `results`; it is not a separate class in code.
-`ResultDataset` can be used in a complex pipeline as a `Dataset` by (todo; add/name a method for this: for now it's just by moving the results to the text field.)
+`ResultDataset` can be used in a complex pipeline as a `Dataset` by (todo; add/name a method for this: for now it's just by moving the results to the texts field.)
 
 ### Method
 
@@ -65,7 +80,7 @@ Available modules:
 
 Located in [`vectorizer/`](nlp_pipelines/vectorizer)
 
-Vectorization methods transform datasets into `VectorizedDataset` objects by adding `vectors`
+Vectorization methods transform datasets into `VectorizedDataset` objects by adding `vectors`. Training vectorizers is (currently) out of scope, so vectorzers simply have a `.transform(dataset)` method.
 
 Available modules:
 - [`tfidf.py`](nlp_pipelines/vectorizer/tfidf.py): TF-IDF vectorization
@@ -73,11 +88,11 @@ Available modules:
 - [`sentence_embedding.py`](nlp_pipelines/vectorizer/sentence_embedding.py): sentence-level embeddings
 
 
-### Keyword Extractior
+### Labeler
 
-Located in [`keywords/`](nlp_pipelines/keywords)
+Located in [`labeler/`](nlp_pipelines/labeler)
 
-Keyword extraction methods assign keyword labels to input documents. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
+Labeler methods assign keyword labels to input documents, specificially one document may have 0+ labels. Some of these methods take a list of 'candidate labels' which are the set of labels which are possible to use, but some do not and simply extract keywords from documents. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
 
 Modules:
 - [`unsupervised/yake.py`](nlp_pipelines/keywords/unsupervised/yake.py): YAKE-based unsupervised extraction
@@ -88,11 +103,20 @@ Modules:
 
 Located in [`classifier/`](nlp_pipelines/classifier)
 
-Classification methods assign labels to documents using supervised or unsupervised strategies. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
+Classification methods assign labels to documents using a set of input possible labels, specifically each document has exactly one class. The distinction with "Clusterer" is that classifiers group in a way which is aligned with meaning, while clusterers find groups inherent in the data directly. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
 
 Modules:
-- [`unsupervised/graph_affinity.py`](nlp_pipelines/classifier/unsupervised/graph_affinity.py): graph-based label propagation
-- [`supervised/label_prop.py`](nlp_pipelines/classifier/supervised/label_prop.py): supervised label propagation model
+- [`label_prop.py`](nlp_pipelines/classifier/label_prop.py): supervised label propagation model
+
+---
+#### Clusterer
+
+Located in [`clusterer/`](nlp_pipelines/clusterer)
+
+Classification methods assign labels to documents using some similarity in the data (usually a distance metric), specifically each document has exactly one class. The distinction with "Clusterer" is that classifiers group in a way which is aligned with meaning, while clusterers find groups inherent in the data directly. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
+
+Modules:
+- [`graph_affinity.py`](nlp_pipelines/clusterer/graph_affinity.py): graph-based label propagation
 
 ---
 
