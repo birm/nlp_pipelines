@@ -9,7 +9,7 @@ from sklearn.metrics import (
     f1_score,
 )
 
-def evaluate_dataset_metrics(
+def evaluate(
     dataset: Dataset
 ) -> Tuple[float, float, float, float, float, float]:
     """
