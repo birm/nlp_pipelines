@@ -63,17 +63,17 @@ A `TrainedMethod` conceptually extends a `Method` and logically allows access to
 
 ## Method Types
 
-### Preprocessor
+### Preproces
 
-Located in [`preprocessor/`](nlp_pipelines/preprocessor)
+Located in [`preprocess/`](nlp_pipelines/preprocess)
 
 Preprocessing methods operate on `Dataset` objects and return new `Dataset` objects with transformed `.text` values. Only the first preprocessing step populates the `.original_text` field.
 
 Available modules:
-- [`rm_stopwords.py`](nlp_pipelines/preprocessor/rm_stopwords.py): stopword removal
-- [`stem.py`](nlp_pipelines/preprocessor/stem.py): stemming
-- [`lemmatize.py`](nlp_pipelines/preprocessor/lemmatize.py): lemmatization
-- [`pos_removal.py`](nlp_pipelines/preprocessor/pos_removal.py): part-of-speech filtering
+- [`rm_stopwords.py`](nlp_pipelines/preprocess/rm_stopwords.py): stopword removal
+- [`stem.py`](nlp_pipelines/preprocess/stem.py): stemming
+- [`lemmatize.py`](nlp_pipelines/preprocess/lemmatize.py): lemmatization
+- [`pos_removal.py`](nlp_pipelines/preprocess/pos_removal.py): part-of-speech filtering
 
 
 ### Vectorizer
@@ -131,10 +131,10 @@ Modules:
 
 ---
 
-### Evaluator
+### Evaluate
 
-Located in [`evaluator/evaluator.py`](nlp_pipelines/evaluator/evaluator.py)
+Located in [`evaluate/evaluate.py`](nlp_pipelines/evaluate/evaluate.py)
 
-Evaluation methods compute metrics such as precision, recall, and classification accuracy using a `LabeledDataset`.
+Evaluation methods compute metrics such as precision, recall, and classification accuracy using a `LabeledDataset` with results.
 
 ---
