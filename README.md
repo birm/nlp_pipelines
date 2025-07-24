@@ -106,7 +106,9 @@ Located in [`classifier/`](nlp_pipelines/classifier)
 Classification methods assign labels to documents using a set of input possible labels, specifically each document has exactly one class. The distinction with "Clusterer" is that classifiers group in a way which is aligned with meaning, while clusterers find groups inherent in the data directly. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
 
 Modules:
-- [`label_prop.py`](nlp_pipelines/classifier/label_prop.py): supervised label propagation model
+- [`BartTag.py`](nlp_pipelines/classifier/BartTag.py): BART zero shot classification (fit and predict only require texts)
+- [`LabelProp.py`](nlp_pipelines/classifier/LabelProp.py): supervised label propagation model (fit requires: vectors, true labels; predict requires vectors)
+- [`Xgboost.py`](nlp_pipelines/classifier/Xgboost.py): supervised xgboost model (fit requires: vectors, labels; predict requires vectors)
 
 ---
 #### Clusterer
@@ -116,7 +118,8 @@ Located in [`clusterer/`](nlp_pipelines/clusterer)
 Classification methods assign labels to documents using some similarity in the data (usually a distance metric), specifically each document has exactly one class. The distinction with "Clusterer" is that classifiers group in a way which is aligned with meaning, while clusterers find groups inherent in the data directly. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
 
 Modules:
-- [`graph_affinity.py`](nlp_pipelines/clusterer/graph_affinity.py): graph-based label propagation
+- [`GraphAffinity.py`](nlp_pipelines/clusterer/GraphAffinity.py): graph-based clustering using spectral clustering (fit and predict require vectors)
+- [`UmapHdbscan.py`](nlp_pipelines/clusterer/UmapHdbscan.py): use of UMAP for dimensionalty reduction and hdbscan for clustering (fit and predict require vectors)
 
 ---
 
