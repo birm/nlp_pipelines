@@ -21,6 +21,8 @@ class Xgboost(BaseMethod):
         self.possible_labels = possible_labels
 
     def predict(self, dataset):
+        if not self.is_fit:
+            raise RuntimeError("Methods must be fit before running predict.")
         if dataset.vectors is None:
             raise ValueError("Dataset for LabelProp needs vectors. Use a vectorizer.")
         predicted_encoded_labels = self.xgboost_model.predict(dataset.vectors)

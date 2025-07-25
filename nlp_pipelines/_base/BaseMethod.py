@@ -37,7 +37,7 @@ class BaseMethod(ABC):
         self.is_fit = False
         self.possible_labels = []
 
-    def fit(self, dataset, possible_labels=None):
+    def fit(self, dataset, possible_labels=[]):
         """
         Fits the model on the training data (X_train).
 
@@ -63,4 +63,4 @@ class BaseMethod(ABC):
         Returns:
             list: A list of predicted labels corresponding to each document in X.
         """
-        pass
+        return dataset

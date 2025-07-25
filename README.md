@@ -80,23 +80,28 @@ Available modules:
 
 Located in [`vectorizer/`](nlp_pipelines/vectorizer)
 
-Vectorization methods transform datasets into `VectorizedDataset` objects by adding `vectors`. Training vectorizers is (currently) out of scope, so vectorzers simply have a `.transform(dataset)` method.
+Vectorization methods transform datasets into `VectorizedDataset` objects by adding `vectors`. Vectorzers simply a `.fit(dataset)` method and a  `.transform(dataset)` method.
 
 Available modules:
 - [`tfidf.py`](nlp_pipelines/vectorizer/tfidf.py): TF-IDF vectorization
 - [`bow.py`](nlp_pipelines/vectorizer/bow.py): bag-of-words vectorization
-- [`sentence_embedding.py`](nlp_pipelines/vectorizer/sentence_embedding.py): sentence-level embeddings
+- [`sentence_embedding.py`](nlp_pipelines/vectorizer/sentence_embedding.py): pretrained sentence-level embeddings 
 
 
 ### Labeler
 
 Located in [`labeler/`](nlp_pipelines/labeler)
 
-Labeler methods assign keyword labels to input documents, specificially one document may have 0+ labels. Some of these methods take a list of 'candidate labels' which are the set of labels which are possible to use, but some do not and simply extract keywords from documents. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
+Labeler methods assign keyword labels to input documents, specifically one document may have 0+ labels. Some of these methods take a list of 'candidate labels' which are the set of labels which are possible to use, but some do not and simply extract keywords from documents. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
 
 Modules:
-- [`unsupervised/yake.py`](nlp_pipelines/keywords/unsupervised/yake.py): YAKE-based unsupervised extraction
-- [`supervised/logistic.py`](nlp_pipelines/keywords/supervised/logistic.py): supervised multi-label classification for known keyword sets
+- [`predictive/MultiLogistic.py`](nlp_pipelines/labeler/predictive/MultiLogistic.py): supervised multi-label classification for known keyword sets
+- [`predictive/ThresholdSim.py`](nlp_pipelines/labeler/predictive/ThresholdSim.py): similarity-based label prediction using thresholding on various distance metrics
+- [`extractive/Bm25.py`](nlp_pipelines/labeler/extractive/Bm25.py): BM25-based keyword extraction
+- [`extractive/Yake.py`](nlp_pipelines/labeler/extractive/Yake.py): YAKE-based keyword extraction
+- [`extractive/MultiRake.py`](nlp_pipelines/labeler/extractive/MultiRake.py): MultiRake-based keyword extraction
+- [`extractive/KeyBert.py`](nlp_pipelines/labeler/extractive/KeyBert.py): KeyBERT-based keyword extraction
+- [`extractive/TfidfTopN.py`](nlp_pipelines/labeler/extractive/TfidfTopN.py): TF-IDF Top-N keyword extraction
 
 
 ### Classifier

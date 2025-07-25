@@ -14,6 +14,8 @@ class UmapHdbscan(BaseMethod):
     # fit not needed, leave as pass from abc
 
     def predict(self, dataset):
+        if not self.is_fit:
+            raise RuntimeError("Methods must be fit before running predict.")
         if dataset.vectors is None:
             raise ValueError("Dataset for UmapHdbscan needs vectors. Use a vectorizer.")
         # Reduce dimensionality with UMAP
