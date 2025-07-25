@@ -80,12 +80,13 @@ Available modules:
 
 Located in [`vectorizer/`](nlp_pipelines/vectorizer)
 
-Vectorization methods transform datasets into `VectorizedDataset` objects by adding `vectors`. Vectorzers simply a `.fit(dataset)` method and a  `.transform(dataset)` method.
+Vectorization methods transform datasets into `VectorizedDataset` objects by adding `vectors`. Vectorzers have a `.fit(dataset)` method and a  `.transform(dataset)` method. You must fit before transforming.
 
 Available modules:
-- [`tfidf.py`](nlp_pipelines/vectorizer/tfidf.py): TF-IDF vectorization
-- [`bow.py`](nlp_pipelines/vectorizer/bow.py): bag-of-words vectorization
-- [`sentence_embedding.py`](nlp_pipelines/vectorizer/sentence_embedding.py): pretrained sentence-level embeddings 
+- [`Tfidf.py`](nlp_pipelines/vectorizer/Tfidf.py): TF-IDF vectorization
+- [`Bow.py`](nlp_pipelines/vectorizer/Bow.py): bag-of-words vectorization
+- [`SentenceEmbedding.py`](nlp_pipelines/vectorizer/SentenceEmbedding.py): pretrained sentence-level embeddings 
+- [`FastText.py`](nlp_pipelines/vectorizer/FastText.py): FastText vectorizer; can use pretrained, supervised, or unsupervised.
 
 
 ### Labeler

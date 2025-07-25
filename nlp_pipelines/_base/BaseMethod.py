@@ -1,4 +1,3 @@
-import pickle
 from abc import ABC, abstractmethod
 import logging
 
@@ -25,7 +24,6 @@ class BaseMethod(ABC):
         """
         # logging
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.logger.info("Initialized BartTag")
         self.supervised = supervised
         if not type(method_type) is str:
             raise ValueError("Method type must be a string from the list of supported types: {__SUPPORTED_METHOD_TYPES}")
@@ -39,11 +37,10 @@ class BaseMethod(ABC):
 
     def fit(self, dataset, possible_labels=[]):
         """
-        Fits the model on the training data (X_train).
+        Fits the model on the training data.
 
         Args:
-            X_train (list): A list of documents (text data) to train the model.
-            y_train (list, optional): Labels for the training data. Defaults to None.
+            dataset: a text dataset object with at least the .texts; other attributes may be required by some methods
             possible_labels (list, optional): A list of possible labels for prediction. Defaults to None.
 
         Returns:
@@ -58,9 +55,9 @@ class BaseMethod(ABC):
         Predict the output for a given set of text samples.
 
         Args:
-            X (list): A list of documents (text data) to predict the labels for.
+            dataset: a text dataset object with at least the .texts; other attributes may be required by some methods
 
         Returns:
-            list: A list of predicted labels corresponding to each document in X.
+            dataset: A dataset with .results set
         """
         return dataset
