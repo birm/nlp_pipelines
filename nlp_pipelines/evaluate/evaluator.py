@@ -1,6 +1,6 @@
 from typing import Tuple
 import numpy as np
-from nlp_pipelines.dataset.dataset import Dataset
+from nlp_pipelines.dataset import Dataset
 from sklearn.metrics import (
     adjusted_rand_score,
     normalized_mutual_info_score,

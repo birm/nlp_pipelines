@@ -1,7 +1,7 @@
 # tests/classifier_pipeline_test.py
 import context
 from nlp_pipelines.pipeline.Pipeline import Pipeline
-from nlp_pipelines.dataset.dataset import Dataset
+from nlp_pipelines.dataset import Dataset
 
 def test_classifier_pipeline_smoke():
     texts = ["I love this movie", "This is terrible", "Fantastic work", "Awful experience", "It was okay"]

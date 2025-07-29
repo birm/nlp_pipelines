@@ -10,7 +10,7 @@ class LabelProp(BaseMethod):
         self.lp_model = LabelPropagation(kernel="knn", n_neighbors=self.n_neighbors)
         self.le = LabelEncoder()
         self.possible_labels = None
-        self.train_requires_labels = True
+        self.train_requires_truths = True
         self.requires_vectors = True
 
     def fit(self, dataset, possible_labels=[]):

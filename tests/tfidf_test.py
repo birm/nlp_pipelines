@@ -1,6 +1,6 @@
 import context
 from nlp_pipelines.vectorizer.Tfidf import Tfidf
-from nlp_pipelines.dataset.dataset import Dataset
+from nlp_pipelines.dataset import Dataset
 
 def test_tfidf_vectorizer_smoke():
     texts = [

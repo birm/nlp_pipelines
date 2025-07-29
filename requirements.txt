@@ -15,3 +15,5 @@ torch
 networkx
 xgboost
 transformers
+hdbscan
+umap

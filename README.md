@@ -7,7 +7,7 @@
 ## Example Usage
 ```python
 from nlp_pipelines.pipeline.Pipeline import Pipeline
-from nlp_pipelines.dataset.dataset import Dataset
+from nlp_pipelines.dataset import Dataset
 
 ## pick dataset
 texts = ["I love this movie", "This is terrible", "Fantastic work", "Awful experience", "It was okay"]

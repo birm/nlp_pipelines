@@ -1,7 +1,7 @@
 # tests/labeler_pipeline_test.py
 import context
 from nlp_pipelines.pipeline.Pipeline import Pipeline
-from nlp_pipelines.dataset.dataset import Dataset
+from nlp_pipelines.dataset import Dataset
 
 def test_labeler_pipeline_smoke():
     texts = ["Liver disease is common", "Kidney failure treatment", "Cancer diagnosis improved"]

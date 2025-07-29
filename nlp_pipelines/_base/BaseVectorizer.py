@@ -8,7 +8,7 @@ class BaseVectorizer(ABC):
     """
     def __init__(self, supervised=False):
         """
-        Initializes the base clustering model.
+        Initializes the base vectorizeer model.
 
         Args:
             supervised (bool): Indicates if the vectorizer is supervised. Defaults to False.

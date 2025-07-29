@@ -31,6 +31,44 @@ class Dataset:
         self.vectors = None
         self.results = None
 
+    # print an informative string if printed
+    def __repr__(self):
+        repr_str = f"<Dataset with {len(self.texts)} texts"
+
+        # If vectors are available, show the shape of the first one
+        if self.vectors is not None:
+            repr_str += f", vectors: {np.shape(self.vectors)[1]}-dim" if isinstance(self.vectors, np.ndarray) else f", vectors: {len(self.vectors[0])}-dim"
+
+        # If results are available, add the number of results
+        if self.results is not None:
+            repr_str += f", results: {len(self.results)} items"
+
+        # Add a preview of the first few texts and truths
+        repr_str += "\nTexts: "
+        if len(self.texts) > 2:
+            repr_str += f"{self.texts[:2]}... +{len(self.texts) - 2} more"
+        else:
+            repr_str += f"{self.texts[:2]}"
+
+        if self.truths is not None:
+            repr_str += "\nTruths: "
+            if len(self.truths) > 2:
+                repr_str += f"{self.truths[:2]}... +{len(self.truths) - 2} more"
+            else:
+                repr_str += f"{self.truths[:2]}"
+
+        
+        if self.results is not None:
+            repr_str += "\Results: "
+            if len(self.results) > 2:
+                repr_str += f"{self.results[:2]}... +{len(self.results) - 2} more"
+            else:
+                repr_str += f"{self.results[:2]}"
+
+        repr_str += ">"
+        return repr_str
+
+
     def get(self, labeled: bool = True, count: int = -1, ratio: float = 1.0, seed: Optional[int] = None) -> 'Dataset':
         """
         Get a random subset of the dataset.
