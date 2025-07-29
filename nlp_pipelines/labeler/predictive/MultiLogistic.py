@@ -24,6 +24,9 @@ class MultiLogistic(BaseMethod):
         self.possible_labels_embed = []
         self.lr_model = None
         self.mlb = MultiLabelBinarizer()
+        self.train_requires_truths = True
+        self.requires_vectors = True
+        self.requires_embed_possible_labels = True
 
     def fit(self, dataset, possible_labels=[], possible_labels_embed=[]):
         """

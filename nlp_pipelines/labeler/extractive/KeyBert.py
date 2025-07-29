@@ -1,7 +1,7 @@
 from keybert import KeyBERT
 from nlp_pipelines._base.BaseMethod import BaseMethod
 
-class KeyBertExtract(BaseMethod):
+class KeyBert(BaseMethod):
     def __init__(self, top_k=10, include_scores=False):
         super().__init__(method_type="labeler", supervised=False)
         self.extractor = KeyBERT()

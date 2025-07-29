@@ -20,6 +20,8 @@ class BaseVectorizer(ABC):
         # metadata fields
         self.method_name = "BaseVectorizer"
         self.is_fit = False
+        self.train_requires_truths = False # I don't think this should ever be true for vectorizer
+        self.requires_vectors = False # also always false
 
     def fit(self, dataset):
         """

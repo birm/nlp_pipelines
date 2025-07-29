@@ -14,5 +14,5 @@ class MultiRake(BaseMethod):
         for row in dataset.texts:
             y_i = self.extractor.apply(row)
             keywords.append([kwd for kwd, score in y_i[:self.top_k]])
-        dataset.keywords = keywords
+        dataset.results = keywords
         return dataset

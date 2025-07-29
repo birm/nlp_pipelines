@@ -9,7 +9,8 @@ class Xgboost(BaseMethod):
         self.xgboost_model = xgb.XGBClassifier(eval_metric='mlogloss')
         self.possible_labels = None
         self.le = LabelEncoder()
-
+        self.train_requires_truths = True
+        self.requires_vectors = True
 
     def fit(self, dataset, possible_labels=[]):
         if dataset.vectors is None:
@@ -27,4 +28,4 @@ class Xgboost(BaseMethod):
             raise ValueError("Dataset for LabelProp needs vectors. Use a vectorizer.")
         predicted_encoded_labels = self.xgboost_model.predict(dataset.vectors)
         predicted_labels = self.le.inverse_transform(predicted_encoded_labels)
-        return predicted_labels
+        dataset.results = predicted_labels

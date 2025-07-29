@@ -13,4 +13,4 @@ class Yake(BaseMethod):
         for row in dataset.texts:
             y_i = self.extractor.extract_keywords(row)
             keywords.append([kwd for kwd, _ in y_i[:self.top_k]])
-        return keywords
+        dataset.results = keywords

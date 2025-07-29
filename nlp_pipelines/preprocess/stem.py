@@ -1,4 +1,3 @@
-import spacy
 from nlp_pipelines.dataset.dataset import Dataset
 from nltk.stem import PorterStemmer
 

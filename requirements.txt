@@ -3,3 +3,15 @@ nltk
 spacy
 numpy
 pandas
+fasttext
+sentence_transformers
+spacy
+nltk
+rank_bm25
+keybert
+multi_rake
+yake
+torch
+networkx
+xgboost
+transformers

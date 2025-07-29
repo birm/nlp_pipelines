@@ -1,14 +1,17 @@
 from abc import ABC, abstractmethod
 import logging
 
-__SUPPORTED_METHOD_TYPES = {
+
+
+class BaseMethod(ABC):
+
+    __SUPPORTED_METHOD_TYPES = {
     'clusterer',
     'classifier',
     'labeler',
     'topics'
     }
-
-class BaseMethod(ABC):
+    
     """
     Base class for nlp pipeline methods.
     Univerally, use fit first then predict, at least to set up variables internally, even for methods which do not actually fit.
@@ -26,14 +29,17 @@ class BaseMethod(ABC):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.supervised = supervised
         if not type(method_type) is str:
-            raise ValueError("Method type must be a string from the list of supported types: {__SUPPORTED_METHOD_TYPES}")
+            raise ValueError("Method type must be a string from the list of supported types: {self.__SUPPORTED_METHOD_TYPES}")
         self.method_type = method_type.lower()
-        if not method_type in __SUPPORTED_METHOD_TYPES:
-            raise ValueError(f'{method_type} not supported. Supported methods include {__SUPPORTED_METHOD_TYPES}')
+        if not method_type in self.__SUPPORTED_METHOD_TYPES:
+            raise ValueError(f'{method_type} not supported. Supported methods include {self.__SUPPORTED_METHOD_TYPES}')
         # metadata fields
         self.method_name = "BaseMethod"
         self.is_fit = False
         self.possible_labels = []
+        self.train_requires_truths = False
+        self.requires_vectors = False
+        self.requires_embed_possible_labels = False
 
     def fit(self, dataset, possible_labels=[]):
         """

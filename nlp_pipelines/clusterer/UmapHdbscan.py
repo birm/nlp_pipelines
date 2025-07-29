@@ -4,13 +4,14 @@ from nlp_pipelines._base.BaseMethod import BaseMethod
 
 
 class UmapHdbscan(BaseMethod):
-    def __init__(self):
+    def __init__(self, n_neighbors=15, n_components=5, min_cluster_size=10):
         super().__init__(method_type='clusterer', supervised=False)
         self.method_name = "Umap With HDBScan"
         #load the umap model
-        self.umap_model = umap.UMAP(n_neighbors=15, n_components=5, metric="cosine")
-        self.cluster_model = hdbscan.HDBSCAN(min_cluster_size=10, metric="euclidean", cluster_selection_method="eom", prediction_data=True)
-
+        self.umap_model = umap.UMAP(n_neighbors=n_neighbors, n_components=n_components, metric="cosine")
+        self.cluster_model = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, metric="euclidean", cluster_selection_method="eom", prediction_data=True)
+        self.requires_vectors = True
+        
     # fit not needed, leave as pass from abc
 
     def predict(self, dataset):

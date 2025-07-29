@@ -5,15 +5,18 @@ import io
 
 from nlp_pipelines._base.BaseVectorizer import BaseVectorizer
 
-__SUPPORTED_UNSUP_METHODS = {"skipgram", "cbow"}
+
 
 class FastText(BaseVectorizer):
+
+    __SUPPORTED_UNSUP_METHODS = {"skipgram", "cbow"}
+
     def __init__(self, model_path=None, supervised=False, unsupervised_method="skipgram"):
         super().__init__(supervised)
         self.model_path = model_path
         self.method_name = f"FastText: {"Supervised" if supervised else "Unsupervised"}"
-        if not self.unsupervised_method in __SUPPORTED_UNSUP_METHODS:
-            raise RuntimeError(f"FastText: unsupervised_method {unsupervised_method} not supported; pick one of {__SUPPORTED_UNSUP_METHODS}")
+        if not self.unsupervised_method in self.__SUPPORTED_UNSUP_METHODS:
+            raise RuntimeError(f"FastText: unsupervised_method {unsupervised_method} not supported; pick one of {self.__SUPPORTED_UNSUP_METHODS}")
         self.unsupervised_method = unsupervised_method
         self.model = None
 

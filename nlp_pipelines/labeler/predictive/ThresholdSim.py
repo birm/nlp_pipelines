@@ -13,6 +13,7 @@ class ThresholdSim(BaseMethod):
         if similarity_method not in self.__SUPPORTED_METHOD_TYPES:
             raise ValueError(f"Invalid method type '{similarity_method}'. Supported methods are: {', '.join(self.__SUPPORTED_METHOD_TYPES)}")
         self.similarity_method = similarity_method
+        self.requires_vectors = True
         
         
     def fit(self, dataset, possible_labels=[], possible_labels_embed=[]):

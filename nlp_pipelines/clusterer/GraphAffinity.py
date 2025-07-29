@@ -16,6 +16,7 @@ class GraphAffinity(BaseMethod):
         self.clustering_model = None # made in fit
         self.num_clusters = None
         self.possible_labels = None # add in fit
+        self.requires_vectors = True
     
     def fit(self, dataset, possible_labels=[], num_clusters=None):
         """
