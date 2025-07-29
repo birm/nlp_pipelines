@@ -4,8 +4,66 @@
 
 ---
 
+## Example Usage
+```python
+from nlp_pipelines.pipeline.Pipeline import Pipeline
+from nlp_pipelines.dataset.dataset import Dataset
+
+## pick dataset
+texts = ["I love this movie", "This is terrible", "Fantastic work", "Awful experience", "It was okay"]
+truths = ["positive", "negative", "positive", "negative", "neutral"]
+dataset = Dataset(texts, truths)
+train, test = dataset.split(count=3, seed=42)
+
+# define the pipeline; methods use the import name (e.g. `from nlp_pipelines.vectorizer import Tfidf` becomes `"vectorizer.Tfidf"`)
+pipeline = Pipeline([
+    {"name": "vec", "method": "vectorizer.Tfidf"},
+    {"name": "clf", "method": "classifier.Xgboost"}
+])
+# set train and test data
+pipeline.set_data(train_data=train, run_data=test)
+# run the pipeline
+pipeline.run()
+
+# look at the results
+print("Results:", pipeline.run_data.results)
+```
+
+If a method needs arguments, pass them as "params" like:
+```python
+    pipeline = Pipeline([
+        {"name": "vec", "method": "vectorizer.Tfidf"},
+        {"name": "label", "method": "labeler.Bm25", "params": {"top_k": 3}}
+    ])
+```
+
 
 ## Object Types
+
+### Pipeline
+
+Located in \[`pipeline/`\](nlp_pipelines/pipeline)
+
+A `Pipeline` object defines an ordered sequence of processing steps that can include any number of `Method` objects (e.g., preprocessors, vectorizers, labelers, classifiers). Pipelines allow methods to be chained together with automatic handling of dataset transformations between steps.
+
+Each pipeline is **directional**: the order of steps matters, and each step transforms the dataset before it is passed to the next. Methods must be `fit()` before `predict()` can be called.
+
+**Key Concepts**:
+- Each step is specified as a `(step_name, method_instance)` tuple.
+- The pipeline handles:
+  - Calling `.fit(dataset)` on each method (if needed).
+  - Calling `.transform(dataset)` for methods with that capability (e.g., vectorizers).
+  - Passing the output of one method to the next.
+- Should be able to be trained then saved to run on data later. 
+
+**Training & Prediction**:
+- `train(dataset)` will call `fit()` on each method if applicable, and also apply `transform()` for vectorizers.
+- `predict(dataset)` must be called only on a pipeline that has already been trained. It applies each method in sequence, forwarding the updated dataset.
+
+**Notes**:
+- Vectorizers should appear before any step that depends on vectors (e.g., classifiers, some labelers).
+- Methods that require candidate labels should be trained with those provided at `fit` time.
+
 
 ### Dataset
 
