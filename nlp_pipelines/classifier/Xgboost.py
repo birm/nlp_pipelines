@@ -20,6 +20,7 @@ class Xgboost(BaseMethod):
         encoded_labels = self.le.fit_transform(dataset.truths)
         self.xgboost_model.fit(dataset.vectors, encoded_labels)
         self.possible_labels = possible_labels
+        self.is_fit = True
 
     def predict(self, dataset):
         if not self.is_fit:

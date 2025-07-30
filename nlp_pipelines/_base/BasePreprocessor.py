@@ -14,11 +14,13 @@ class BasePreprocessor(ABC):
         # logging
         self.logger = logging.getLogger(self.__class__.__name__)
         self.supervised = supervised
+        self.method_type = "processor"
         # metadata fields
         self.method_name = "BasePreprocessor"
         self.is_fit = True # secret; don't need to fit preprocessors but can still call it
         self.train_requires_truths = False
         self.requires_vectors = False
+        self.requires_embed_possible_labels = False
 
     def fit(self, dataset):
         """

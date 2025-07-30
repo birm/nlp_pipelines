@@ -1,6 +1,8 @@
 import random
 from typing import List, Optional, Tuple
 import numpy as np
+import pandas as pd
+import json
 
 class Dataset:
 
@@ -30,6 +32,74 @@ class Dataset:
         self.truths = truths
         self.vectors = None
         self.results = None
+
+    @classmethod
+    def from_csv(cls, filename: str, text_field: str, truth_field: Optional[str] = None) -> 'Dataset':
+        """
+        Read dataset from a CSV file.
+
+        Args:
+            filename (str): Path to the CSV file.
+            text_field (str): The column name containing the text.
+            truth_field (str, optional): The column name containing the truth labels (optional).
+
+        Returns:
+            Dataset: The loaded Dataset object.
+        """
+        df = pd.read_csv(filename)
+        texts = df[text_field].tolist()
+
+        truths = None
+        if truth_field and truth_field in df.columns:
+            truths = df[truth_field].tolist()
+
+        return cls(texts, truths)
+
+    @classmethod
+    def from_parquet(cls, filename: str, text_field: str, truth_field: Optional[str] = None) -> 'Dataset':
+        """
+        Read dataset from a Parquet file.
+
+        Args:
+            filename (str): Path to the Parquet file.
+            text_field (str): The column name containing the text.
+            truth_field (str, optional): The column name containing the truth labels (optional).
+
+        Returns:
+            Dataset: The loaded Dataset object.
+        """
+        df = pd.read_parquet(filename)
+        texts = df[text_field].tolist()
+
+        truths = None
+        if truth_field and truth_field in df.columns:
+            truths = df[truth_field].tolist()
+
+        return cls(texts, truths)
+
+    @classmethod
+    def from_json(cls, filename: str, text_field: str, truth_field: Optional[str] = None) -> 'Dataset':
+        """
+        Read dataset from a JSON file.
+
+        Args:
+            filename (str): Path to the JSON file.
+            text_field (str): The key containing the text.
+            truth_field (str, optional): The key containing the truth labels (optional).
+
+        Returns:
+            Dataset: The loaded Dataset object.
+        """
+        with open(filename, 'r') as f:
+            data = json.load(f)
+
+        texts = [item[text_field] for item in data]
+
+        truths = None
+        if truth_field:
+            truths = [item.get(truth_field) for item in data]
+
+        return cls(texts, truths)
 
     # print an informative string if printed
     def __repr__(self):
@@ -155,3 +225,67 @@ class Dataset:
         ds_2 = Dataset(remaining_texts, remaining_truths)
 
         return ds_1, ds_2
+    
+    def to_df(self) -> pd.DataFrame:
+        """
+        Convert the dataset to a pandas DataFrame.
+
+        Returns:
+            pd.DataFrame: A DataFrame representing the Dataset object.
+        """
+        data = {
+            'text': self.texts,
+            'original_text': self.original_texts,
+        }
+        
+        if self.truths:
+            data['truth'] = self.truths
+        
+        if self.results:
+            data['results'] = self.results
+
+        # Convert the dictionary into a DataFrame
+        return pd.DataFrame(data)
+
+    def to_csv(self, filename: str) -> None:
+        """
+        Write the dataset to a CSV file.
+
+        Args:
+            filename (str): Path to the output CSV file.
+        """
+        df = self.to_df()
+        df.to_csv(filename, index=False)
+
+    def to_parquet(self, filename: str) -> None:
+        """
+        Write the dataset to a Parquet file.
+
+        Args:
+            filename (str): Path to the output Parquet file.
+        """
+        df = self.to_df()
+        df.to_parquet(filename, index=False)
+
+    def to_json(self, filename: str) -> None:
+        """
+        Write the dataset to a JSON file.
+
+        Args:
+            filename (str): Path to the output JSON file.
+        """
+        # Convert dataset into a list of dictionaries
+        data = []
+        for i in range(len(self.texts)):
+            item = {
+                'text': self.texts[i],
+                'original_text': self.original_texts[i],
+            }
+            if self.truths:
+                item['truth'] = self.truths[i]
+            if self.results:
+                item['results'] = self.results[i]
+            data.append(item)
+        
+        with open(filename, 'w') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)

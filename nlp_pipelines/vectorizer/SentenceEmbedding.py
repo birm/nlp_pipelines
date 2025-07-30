@@ -12,5 +12,5 @@ class SentenceEmbedding(BaseVectorizer):
             raise RuntimeError("Vectorizer must be fit before transforming.")
         
         dataset.vectors = self.model.encode(dataset.texts, convert_to_tensor=True)
-        dataset.vectors = dataset.results.cpu().numpy()
+        dataset.vectors = dataset.vectors.cpu().numpy()
         return dataset

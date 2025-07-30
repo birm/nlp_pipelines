@@ -2,6 +2,7 @@
 # keep this in mind to fix vextorizers to support this too.
 from nlp_pipelines._base.BaseMethod import BaseMethod
 import torch
+import numpy as np
 
 class ThresholdSim(BaseMethod):
 
@@ -14,6 +15,7 @@ class ThresholdSim(BaseMethod):
             raise ValueError(f"Invalid method type '{similarity_method}'. Supported methods are: {', '.join(self.__SUPPORTED_METHOD_TYPES)}")
         self.similarity_method = similarity_method
         self.requires_vectors = True
+        self.requires_embed_possible_labels = True
         
         
     def fit(self, dataset, possible_labels=[], possible_labels_embed=[]):
@@ -22,11 +24,13 @@ class ThresholdSim(BaseMethod):
         self.possible_labels = [label.lower() for label in possible_labels]
         # Embed the keywords
         self.possible_labels_embed = possible_labels_embed
-        
-        self.is_fitted = True
+        self.is_fit = True
     
     def compute_similarity(self, doc_embedding, keyword_embedding, similarity_method="cosine"):
-
+        if isinstance(doc_embedding, np.ndarray):
+            doc_embedding = torch.tensor(doc_embedding)
+        if isinstance(keyword_embedding, np.ndarray):
+            keyword_embedding = torch.tensor(keyword_embedding)
         # Ensure both embeddings are at least 2D tensors (shape: [1, d])
         doc_embedding = doc_embedding.unsqueeze(0) if doc_embedding.dim() == 1 else doc_embedding
         keyword_embedding = keyword_embedding.unsqueeze(0) if keyword_embedding.dim() == 1 else keyword_embedding

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
+from nlp_pipelines.dataset import Dataset
 
 class BaseVectorizer(ABC):
     """
@@ -17,11 +18,13 @@ class BaseVectorizer(ABC):
         # logging
         self.logger = logging.getLogger(self.__class__.__name__)
         self.supervised = supervised
+        self.method_type = "vectorizer"
         # metadata fields
         self.method_name = "BaseVectorizer"
         self.is_fit = False
         self.train_requires_truths = False # I don't think this should ever be true for vectorizer
         self.requires_vectors = False # also always false
+        self.requires_embed_possible_labels = False
 
     def fit(self, dataset):
         """
@@ -47,3 +50,20 @@ class BaseVectorizer(ABC):
             dataset: A dataset with .vectors set
         """
         return dataset
+    
+    def transform_labels(self, labels):
+        """
+        Transform the text of possible labels to vector form.
+
+        Args:
+            labels: a list of strings to vectorize
+
+        Returns:
+            dataset: A dataset with .vectors set
+        """
+        # make a dataset for just these labels
+        label_dataset = Dataset(labels)
+        # transform this dataset under vectorization
+        label_dataset = self.transform(label_dataset)
+        # then just get the vectors!
+        return label_dataset.vectors

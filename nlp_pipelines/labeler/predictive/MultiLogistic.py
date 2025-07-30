@@ -1,10 +1,12 @@
-from nlp_pipelines._base.BaseMethod import BaseMethod
 from sklearn.linear_model import LogisticRegression
+from sklearn.multioutput import MultiOutputClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.pipeline import Pipeline
+from nlp_pipelines._base.BaseMethod import BaseMethod
 
 class MultiLogistic(BaseMethod):
     """
-    Multi-label Logistic Regression method for predicting relevant keywords for a document. (Low expectations due to combinatorial explosion of MultiLabelBinarizer/possible_labels)
+    Multi-label Logistic Regression method for predicting relevant keywords for a document.
     """
 
     def __init__(self, similarity_method="cosine", threshold=0.5):
@@ -19,7 +21,6 @@ class MultiLogistic(BaseMethod):
         self.method_name = "Multi-label Logistic Regression Keyword Prediction"
         self.similarity_method = similarity_method
         self.threshold = threshold
-        self.is_fitted = False
         self.possible_labels = []
         self.possible_labels_embed = []
         self.lr_model = None
@@ -47,16 +48,22 @@ class MultiLogistic(BaseMethod):
         if not hasattr(dataset, 'truths') or not isinstance(dataset.truths, list):
             raise ValueError("Dataset must have .truths attribute (list of true labels for each document).")
         
+        # Binarize the possible labels to use them for multi-label classification
+        self.mlb.fit([self.possible_labels])  # Fit the binarizer on possible labels
+
         # Encode the ground truth labels as binary vectors (multi-label)
-        y_train = self.mlb.fit_transform(dataset.truths)  # MultiLabelBinarizer converts to 0/1
+        y_train = self.mlb.transform(dataset.truths)  # MultiLabelBinarizer converts to 0/1
 
         # Prepare the feature matrix (X_train) from document embeddings
         X_train = dataset.vectors
 
-        # Train the logistic regression model (one per candidate label)
-        self.lr_model = LogisticRegression(max_iter=1000)
+        # Initialize the base logistic regression model (one for each label)
+        lr_model = LogisticRegression(max_iter=1000)
+
+        # Use MultiOutputClassifier to handle multi-label classification
+        self.lr_model = MultiOutputClassifier(lr_model)
         self.lr_model.fit(X_train, y_train)  # Fit on document embeddings with binary labels
-        self.is_fitted = True
+        self.is_fit = True
 
     def predict(self, dataset):
         """
@@ -68,7 +75,7 @@ class MultiLogistic(BaseMethod):
         Returns:
             dataset: The dataset with the predicted keywords.
         """
-        if not self.is_fitted:
+        if not self.is_fit:
             raise RuntimeError("Methods must be fit before running predict.")
         
         if dataset.vectors is None:

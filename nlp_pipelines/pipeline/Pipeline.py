@@ -18,6 +18,8 @@ class Pipeline:
         """
         self.logger = logging.getLogger(self.__class__.__name__)
         self.steps = []
+        self.possible_labels = None # placeholder
+        self.possible_labels_embed = None # placeholder
 
         for step in steps:
             step_name = step.get("name", "unnamed_step")
@@ -63,12 +65,13 @@ class Pipeline:
             raise ImportError(f"Could not load method '{path}': {e}") from e
 
 
-    def set_data(self, train_data=None, run_data=None):
+    def set_data(self, train_data=None, run_data=None, possible_labels=None):
         """
         Set the datasets to be used by the pipeline.
         """
         self.train_data = train_data
         self.run_data = run_data
+        self.possible_labels = possible_labels
 
     def train(self):
         if self.train_data is None:
@@ -90,18 +93,21 @@ class Pipeline:
             if method.requires_vectors and dataset.vectors is None:
                 raise ValueError(f"Step '{step['name']}' requires vectors, but none found. Vectorize first.")
 
-            # Fit method (with possible_labels if available)
-            possible_labels = getattr(method, "possible_labels", [])
-            if possible_labels and len(possible_labels) > 0:
-                method.fit(dataset, possible_labels=possible_labels)
+            # check for embedded possible labels if required
+            if method.requires_embed_possible_labels and self.possible_labels_embed is None:
+                raise ValueError(f"Step '{step['name']}' requires embedded possible labels, but none found. Set possible_labels and vectorize first.")
+
+            if method.requires_embed_possible_labels:
+                method.fit(dataset, possible_labels=self.possible_labels, possible_labels_embed=self.possible_labels_embed)
             else:
                 method.fit(dataset)
-
-            method.is_fit = True
 
             # If transform exists, run it immediately to update dataset
             if hasattr(method, "transform"):
                 dataset = method.transform(dataset)
+                if method.method_type == "vectorizer" and self.possible_labels is not None:
+                    self.possible_labels_embed = method.transform_labels(self.possible_labels)
+                
 
         # Save updated dataset back to train_data
         self.train_data = dataset
