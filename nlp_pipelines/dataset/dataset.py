@@ -177,7 +177,7 @@ class Dataset:
 
         return ds
 
-    def split(self, labeled: bool = True, splitLabeled: bool = True, count: int = 100, ratio: float = 1.0, seed: Optional[int] = None) -> Tuple['Dataset', 'Dataset']:
+    def split(self, labeled: bool = False, splitLabeled: bool = False, count: int = 100, ratio: float = 1.0, seed: Optional[int] = None) -> Tuple['Dataset', 'Dataset']:
         """
         Split the dataset into two disjoint subsets.
 

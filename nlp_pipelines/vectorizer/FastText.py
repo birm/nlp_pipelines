@@ -2,9 +2,10 @@ import fasttext
 import numpy as np
 import re
 import io
+import os
+import tempfile
 
 from nlp_pipelines._base.BaseVectorizer import BaseVectorizer
-
 
 
 class FastText(BaseVectorizer):
@@ -14,10 +15,11 @@ class FastText(BaseVectorizer):
     def __init__(self, model_path=None, supervised=False, unsupervised_method="skipgram"):
         super().__init__(supervised)
         self.model_path = model_path
+        self.unsupervised_method = unsupervised_method
         self.method_name = f"FastText: {"Supervised" if supervised else "Unsupervised"}"
         if not self.unsupervised_method in self.__SUPPORTED_UNSUP_METHODS:
             raise RuntimeError(f"FastText: unsupervised_method {unsupervised_method} not supported; pick one of {self.__SUPPORTED_UNSUP_METHODS}")
-        self.unsupervised_method = unsupervised_method
+
         self.model = None
 
     def clean_text(self, text):
@@ -42,24 +44,28 @@ class FastText(BaseVectorizer):
             
             training_data = [f"__label__{label} {self.clean_text(text)}" for text, label in zip(dataset.texts, dataset.truths)]
             
-            # Use StringIO to simulate a file-like object in memory
-            training_data_str = "\n".join(training_data)
-            training_data_io = io.StringIO(training_data_str)
-            
+            # Write the training data to a temporary file
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                temp_file.write("\n".join(training_data).encode())
+                temp_file_path = temp_file.name
+
             # Train the supervised model
-            self.model = fasttext.train_supervised(training_data_io)
+            self.model = fasttext.train_supervised(temp_file_path)
             self.is_fit = True
+            os.remove(temp_file_path)  # Clean up the temporary file after training
         else:
             # Clean text and prepare training data
             training_data = [f"{self.clean_text(text)}" for text in dataset.texts]
             
-            # Use StringIO to simulate a file-like object in memory
-            training_data_str = "\n".join(training_data)
-            training_data_io = io.StringIO(training_data_str)
-            
+            # Write the training data to a temporary file
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                temp_file.write("\n".join(training_data).encode())
+                temp_file_path = temp_file.name
+
             # Train the unsupervised model
-            self.model = fasttext.train_unsupervised(training_data_io, model=self.unsupervised_method)
+            self.model = fasttext.train_unsupervised(temp_file_path, model=self.unsupervised_method)
             self.is_fit = True
+            os.remove(temp_file_path)
 
 
     def transform(self, dataset):

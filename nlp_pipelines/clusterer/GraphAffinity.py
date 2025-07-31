@@ -7,18 +7,18 @@ class GraphAffinity(BaseMethod):
     """
     Uses affinity in a embedding distance generated graph for clustering.
     """
-    def __init__(self, max_features=5000, ngram_range=(1, 2), similarity_threshold=0.2):
+    def __init__(self, max_features=5000, ngram_range=(1, 2), similarity_threshold=0.2, num_clusters=2):
         super().__init__(method_type='clusterer', supervised=False)
         self.method_name = "Graph Affinity Clustering"
         self.max_features = max_features
         self.ngram_range = ngram_range
         self.similarity_threshold = similarity_threshold
+        self.num_clusters = num_clusters
         self.clustering_model = None # made in fit
-        self.num_clusters = None
         self.possible_labels = None # add in fit
         self.requires_vectors = True
     
-    def fit(self, dataset, possible_labels=[], num_clusters=None):
+    def fit(self, dataset, possible_labels=[]):
         """
         Fits the model on the training data (X_train).
 
@@ -43,11 +43,6 @@ class GraphAffinity(BaseMethod):
                 if cosine_sim[i, j] > self.similarity_threshold:  # Similarity threshold
                     G.add_edge(i, j, weight=cosine_sim[i, j])
         
-        # Spectral Clustering on Graph Similarity Matrix
-        if num_clusters:
-            self.num_clusters = num_clusters
-        else:
-            self.num_clusters = len(self.possible_labels)
         self.clustering_model = SpectralClustering(n_clusters=self.num_clusters, affinity="precomputed", assign_labels="discretize")
         self.clustering_model.fit(cosine_sim)
         self.is_fit = True

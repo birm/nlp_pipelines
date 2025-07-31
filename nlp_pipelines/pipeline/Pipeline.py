@@ -140,11 +140,12 @@ class Pipeline:
         return self.predict()
 
     def save(self, filepath):
-        """Save pipeline to disk."""
+        """Save the full pipeline object (including trained methods) to disk."""
         with open(filepath, "wb") as f:
-            pickle.dump(self.steps, f)
+            pickle.dump(self, f)
 
-    def load(self, filepath):
-        """Load pipeline from disk."""
+    @classmethod
+    def load(cls, filepath):
+        """Load a full pipeline object from disk."""
         with open(filepath, "rb") as f:
-            self.steps = pickle.load(f)
+            return pickle.load(f)

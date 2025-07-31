@@ -17,3 +17,4 @@ xgboost
 transformers
 hdbscan
 umap
+pyarrow

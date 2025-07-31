@@ -16,7 +16,7 @@ class TokenFilter(BasePreprocessor):
         """
         super().__init__()
         if remove_if is None:
-            remove_if = ["stop", "is_punct", "is_space", "like_num", "like_url"]  # Default things to remove
+            remove_if = ["is_stop", "is_punct", "is_space", "like_num", "like_url"]  # Default things to remove
 
         self.model_name = model_name
         self.nlp = None
