@@ -1,1 +1,1 @@
-# Automatically created
+from .BertTopic import BertTopic

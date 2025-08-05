@@ -18,3 +18,5 @@ transformers
 hdbscan
 umap
 pyarrow
+bertopic
+umap-learn
