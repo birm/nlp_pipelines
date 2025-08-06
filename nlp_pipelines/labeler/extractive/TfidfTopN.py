@@ -12,10 +12,10 @@ class TfidfTopN(BaseMethod):
 
     def fit(self, dataset, possible_labels=None):
         self.vectorizer.fit(dataset.texts)
-        self.is_fitted = True
+        self.is_fit = True
 
     def predict(self, dataset):
-        if not self.is_fitted:
+        if not self.is_fit:
             raise RuntimeError("Call fit() before predict().")
 
         X_tfidf = self.vectorizer.transform(dataset.texts)
