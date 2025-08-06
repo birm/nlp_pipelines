@@ -143,7 +143,7 @@ Vectorization methods transform datasets into `VectorizedDataset` objects by add
 
 Available modules:
 - [`vectorizer.Tfidf`](nlp_pipelines/vectorizer/Tfidf.py): TF-IDF vectorization
-- [`vectorizer.Bow`](nlp_pipelines/vectorizer/Bow.py): bag-of-words vectorization
+- [`vectorizer.BagOfWords`](nlp_pipelines/vectorizer/BagOfWords.py): bag-of-words vectorization
 - [`vectorizer.SentenceEmbedding`](nlp_pipelines/vectorizer/SentenceEmbedding.py): pretrained sentence-level embeddings 
 - [`vectorizer.FastText`](nlp_pipelines/vectorizer/FastText.py): FastText vectorizer; can use pretrained, supervised, or unsupervised.
 

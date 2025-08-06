@@ -1,6 +1,6 @@
 from .Tfidf import Tfidf
-from .Bow import Bow
+from .BagOfWords import BagOfWords
 from .FastText import FastText
 from .SentenceEmbedding import SentenceEmbedding
 
-__all__ = ["Tfidf", "Bow", "FastText", "SentenceEmbedding"]
+__all__ = ["Tfidf", "BagOfWords", "FastText", "SentenceEmbedding"]

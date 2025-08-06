@@ -129,7 +129,7 @@ class Dataset:
 
         
         if self.results is not None:
-            repr_str += "\Results: "
+            repr_str += "\nResults: "
             if len(self.results) > 2:
                 repr_str += f"{self.results[:2]}... +{len(self.results) - 2} more"
             else:

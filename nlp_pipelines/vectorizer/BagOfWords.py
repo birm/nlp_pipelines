@@ -1,7 +1,7 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from nlp_pipelines._base.BaseVectorizer import BaseVectorizer
 
-class Bow(BaseVectorizer):
+class BagOfWords(BaseVectorizer):
     def __init__(self, supervised=False):
         super().__init__(supervised)
         self.vectorizer = CountVectorizer()
