@@ -182,8 +182,8 @@ class Dataset:
         Split the dataset into two disjoint subsets.
 
         Args:
-            labeled: (Optional) If True, return only labeled data for the first split.
-            splitLabeled: (Optional) If True, return from only labeled data for the second split, otherwise from all remaiing documents.
+            labeled: (Optional) If True, return only labeled data for the first split. Ignored for source datasets with no truth.
+            splitLabeled: (Optional) If True, return from only labeled data for the second split, otherwise from all remaiing documents. Ignored for source datasets with no truth.
             count: (Optional) Max number of documents to return.
             ratio: (Optional) Proportion of the dataset to return (0 to 1).
             seed: (Optional) seed for reproducibility.
@@ -199,28 +199,35 @@ class Dataset:
 
         indices = list(range(len(self.texts)))
         split_indices = indices.copy()
+
+        # Filter to only include labeled data if `labeled` is True
         if labeled and self.truths is not None:
             indices = [i for i in indices if self.truths[i] is not None]
-        # if this is set, pull from labeled docs for the split, otherwise from ALL docs.
-        if splitLabeled:
-            split_indices = indices.copy()
         
-        # if count not set, get all
+        # If `splitLabeled` is True, only include labeled data for the second subset (ds_2)
+        if splitLabeled and self.truths is not None:
+            split_indices = [i for i in indices if self.truths[i] is not None]
+
+        # If `count` is not set, we use the entire dataset
         if count == -1:
             count = len(indices)
 
+        # Calculate the number of documents for the first subset based on ratio and count
         subset_size = min(len(indices), int(len(indices) * ratio), count)
 
         random.seed(seed)
         selected_indices = set(random.sample(indices, subset_size))
         remaining_indices = [i for i in split_indices if i not in selected_indices]
 
+        # Prepare the first subset (subset 1) (this can include unlabeled data if `labeled=False`)
         subset_texts = [self.texts[i] for i in selected_indices]
-        subset_truths = [self.truths[i] for i in selected_indices] if labeled and self.truths is not None else None
+        subset_truths = [self.truths[i] for i in selected_indices] if self.truths is not None else None
 
+        # Prepare the second subset (subset 2) (this will only include labeled data if `splitLabeled=True`)
         remaining_texts = [self.texts[i] for i in remaining_indices]
-        remaining_truths = [self.truths[i] for i in remaining_indices] if labeled and self.truths is not None else None
+        remaining_truths = [self.truths[i] for i in remaining_indices] if self.truths is not None else None
 
+        # Create Dataset instances for both splits
         ds_1 = Dataset(subset_texts, subset_truths)
         ds_2 = Dataset(remaining_texts, remaining_truths)
 
