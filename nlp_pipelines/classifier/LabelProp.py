@@ -3,11 +3,11 @@ from sklearn.preprocessing import LabelEncoder
 from nlp_pipelines._base.BaseMethod import BaseMethod
 
 class LabelProp(BaseMethod):
-    def __init__(self, n_neighbors=10):
+    def __init__(self, n_neighbors=10, kernel="knn"):
         super().__init__(method_type="classifier", supervised=False)
         self.method_name = "Label Propagation"
         self.n_neighbors = n_neighbors
-        self.lp_model = LabelPropagation(kernel="knn", n_neighbors=self.n_neighbors)
+        self.lp_model = LabelPropagation(kernel=kernel, n_neighbors=self.n_neighbors)
         self.le = LabelEncoder()
         self.possible_labels = None
         self.train_requires_truths = True
