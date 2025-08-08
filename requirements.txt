@@ -20,3 +20,5 @@ umap
 pyarrow
 bertopic
 umap-learn
+torch
+scipy

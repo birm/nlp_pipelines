@@ -6,5 +6,6 @@ from .extractive.TfidfTopN import TfidfTopN
 
 from .predictive.MultiLogistic import MultiLogistic
 from .predictive.ThresholdSim import ThresholdSim
+from .predictive.SimpleNNLabeler import SimpleNNLabeler
 
-__all__ = ["Bm25", "Yake", "MultiRake", "KeyBert", "TfidfTopN", "MultiLogistic", "ThresholdSim"]
+__all__ = ["Bm25", "Yake", "MultiRake", "KeyBert", "TfidfTopN", "MultiLogistic", "ThresholdSim", "SimpleNNLabeler"]

@@ -162,7 +162,9 @@ Modules:
 - [`labeler.MultiRake`](nlp_pipelines/labeler/extractive/MultiRake.py): MultiRake-based keyword extraction
 - [`labeler.KeyBert`](nlp_pipelines/labeler/extractive/KeyBert.py): KeyBERT-based keyword extraction
 - [`labeler.TfidfTopN`](nlp_pipelines/labeler/extractive/TfidfTopN.py): TF-IDF Top-N keyword extraction
+- [`labeler.SimpleNNLabeler`](nlp_pipelines/labeler/extractive/SimpleNNLabeler.py): Using a neural network to get a n dim vector, and picking those over a threhsold. Train with lots of data! (1. linear input dim [auto detected from the input vector] to hidden dim [set, default 128] with relu activation, 2. dropout (0.2), 3. linear from hidden dim to output dim (number of possible labels), 4. argmax)
 
+---
 
 ### Classifier
 
@@ -174,8 +176,10 @@ Modules:
 - [`classifier.BartTag`](nlp_pipelines/classifier/BartTag.py): BART zero shot classification (fit and predict only require texts)
 - [`classifier.LabelProp`](nlp_pipelines/classifier/LabelProp.py): supervised label propagation model (fit requires: vectors, true labels; predict requires vectors)
 - [`classifier.Xgboost`](nlp_pipelines/classifier/Xgboost.py): supervised xgboost model (fit requires: vectors, labels; predict requires vectors)
+- [`classifier.SimpleNNClassifier`](nlp_pipelines/classifier/SimpleNNClassifier.py): Using a neural network to get a n dim vector, and picking the top one. Train with lots of data! (1. linear input dim [auto detected from the input vector] to hidden dim [set, default 128] with relu activation, 2. dropout (0.2), 3. linear from hidden dim to output dim (number of possible labels), 4. sigmoid + thredhold)
 
 ---
+
 #### Clusterer
 
 Located in [`clusterer/`](nlp_pipelines/clusterer)
