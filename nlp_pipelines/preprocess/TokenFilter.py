@@ -4,6 +4,8 @@ from nlp_pipelines.dataset import Dataset
 from nlp_pipelines._base.BasePreprocessor import BasePreprocessor
 
 # remove things if is_X is set for user choices of X
+# see https://spacy.io/api/token/#attributes
+# you should only use properties which will be true or false. Filtered if true.
 
 class TokenFilter(BasePreprocessor):
     def __init__(self, model_name="en_core_web_sm", remove_if=None):
