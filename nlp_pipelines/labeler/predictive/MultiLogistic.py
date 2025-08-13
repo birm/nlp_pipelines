@@ -1,30 +1,32 @@
 from sklearn.linear_model import LogisticRegression
-from sklearn.multioutput import MultiOutputClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.pipeline import Pipeline
+from sklearn.multioutput import MultiOutputClassifier
+import numpy as np
+
 from nlp_pipelines._base.BaseMethod import BaseMethod
+
 
 class MultiLogistic(BaseMethod):
     """
-    Multi-label Logistic Regression method for predicting relevant keywords for a document.
+    Multi-class Logistic Regression method for predicting relevant keywords for a document.
     """
 
     def __init__(self, similarity_method="cosine", threshold=0.5):
         """
-        Initialize the MultiLogistic method using logistic regression for multi-label classification.
+        Initialize the MultiLogistic method using logistic regression for multi-class classification.
 
         Args:
             similarity_method (str): Similarity measure to use ('cosine', 'l2', 'euclidean', etc.).
             threshold (float): The threshold for classifying a keyword as relevant (probability > threshold).
         """
-        super().__init__(method_type="labeler", supervised=True)
-        self.method_name = "Multi-label Logistic Regression Keyword Prediction"
+        super().__init__(method_type="classifier", supervised=True)
+        self.method_name = "Multi-class Logistic Regression Keyword Prediction"
         self.similarity_method = similarity_method
         self.threshold = threshold
         self.possible_labels = []
         self.possible_labels_embed = []
         self.lr_model = None
-        self.mlb = MultiLabelBinarizer()
+        self.mlb = MultiLabelBinarizer()  # Initialize MultiLabelBinarizer here
         self.train_requires_truths = True
         self.requires_vectors = True
         self.requires_embed_possible_labels = True
@@ -48,22 +50,20 @@ class MultiLogistic(BaseMethod):
         if not hasattr(dataset, 'truths') or not isinstance(dataset.truths, list):
             raise ValueError("Dataset must have .truths attribute (list of true labels for each document).")
         
-        # Binarize the possible labels to use them for multi-label classification
-        self.mlb.fit([self.possible_labels])  # Fit the binarizer on possible labels
-
-        # Encode the ground truth labels as binary vectors (multi-label)
-        y_train = self.mlb.transform(dataset.truths)  # MultiLabelBinarizer converts to 0/1
+        # MultiLabelBinarizer is used for multi-label classification
+        y_train = self.mlb.fit_transform(dataset.truths)  # This converts multi-label lists into binary vectors
 
         # Prepare the feature matrix (X_train) from document embeddings
-        X_train = dataset.vectors
+        X_train = np.array(dataset.vectors)
 
-        # Initialize the base logistic regression model (one for each label)
-        lr_model = LogisticRegression(max_iter=1000)
+        # Initialize the logistic regression model for multi-label classification
+        lr_model = LogisticRegression(max_iter=1000, multi_class='ovr', solver='lbfgs')
 
         # Use MultiOutputClassifier to handle multi-label classification
         self.lr_model = MultiOutputClassifier(lr_model)
-        self.lr_model.fit(X_train, y_train)  # Fit on document embeddings with binary labels
+        self.lr_model.fit(X_train, y_train)  # Fit on document embeddings with multi-label binary vectors
         self.is_fit = True
+
 
     def predict(self, dataset):
         """
@@ -81,17 +81,24 @@ class MultiLogistic(BaseMethod):
         if dataset.vectors is None:
             raise ValueError("Dataset for MultiLogistic needs vectors. Use a vectorizer.")
 
-        # Get predictions (probabilities for each label)
-        predicted_probs = self.lr_model.predict_proba(dataset.vectors)
+        # Get the predicted probabilities (one per label)
+        predicted_probs = self.lr_model.predict_proba(np.array(dataset.vectors))
 
-        # Get the predicted keywords based on the threshold
+        # Get the predicted labels based on the threshold
         predictions = []
         for prob in predicted_probs:
             predicted_labels = [
-                self.possible_labels[idx] for idx, p in enumerate(prob) if p >= self.threshold
+                self.possible_labels[idx] 
+                for idx, p in enumerate(prob) 
+                if isinstance(p, (int, float)) and p >= self.threshold
             ]
             predictions.append(predicted_labels)
 
-        # Store the predictions in the dataset
-        dataset.results = predictions
+        # Now inverse transform the predictions back to the original multi-label format
+        # Reverse the transformation from binary format back to label sets
+        predictions = np.array(predictions)
+        predicted_labels_original = self.mlb.inverse_transform(predictions)
+
+        # Store the predictions in the dataset (now with original labels)
+        dataset.results = predicted_labels_original
         return dataset
