@@ -202,11 +202,16 @@ class Dataset:
 
         # Filter to only include labeled data if `labeled` is True
         if labeled and self.truths is not None:
-            indices = [i for i in indices if self.truths[i] is not None]
+            indices = [
+                i for i in indices if self.truths[i] is not None and (self.truths[i] != [])
+            ]
         
         # If `splitLabeled` is True, only include labeled data for the second subset (ds_2)
         if splitLabeled and self.truths is not None:
-            split_indices = [i for i in indices if self.truths[i] is not None]
+            split_indices = [
+                i for i in indices if self.truths[i] is not None and (self.truths[i] != [])
+            ]
+
 
         # If `count` is not set, we use the entire dataset
         if count == -1:
