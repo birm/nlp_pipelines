@@ -1,104 +1,72 @@
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.multioutput import MultiOutputClassifier
-import numpy as np
-
 from nlp_pipelines._base.BaseMethod import BaseMethod
-
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class MultiLogistic(BaseMethod):
-    """
-    Multi-class Logistic Regression method for predicting relevant keywords for a document.
-    """
 
-    def __init__(self, similarity_method="cosine", threshold=0.5):
-        """
-        Initialize the MultiLogistic method using logistic regression for multi-class classification.
-
-        Args:
-            similarity_method (str): Similarity measure to use ('cosine', 'l2', 'euclidean', etc.).
-            threshold (float): The threshold for classifying a keyword as relevant (probability > threshold).
-        """
-        super().__init__(method_type="classifier", supervised=True)
-        self.method_name = "Multi-class Logistic Regression Keyword Prediction"
-        self.similarity_method = similarity_method
+    def __init__(self, threshold=0.5, epochs=10, lr=1e-3, batch_size=32):
+        super().__init__(method_type="labeler", supervised=True)
+        self.input_dim = None
         self.threshold = threshold
-        self.possible_labels = []
-        self.possible_labels_embed = []
-        self.lr_model = None
-        self.mlb = MultiLabelBinarizer()  # Initialize MultiLabelBinarizer here
-        self.train_requires_truths = True
-        self.requires_vectors = True
-        self.requires_embed_possible_labels = True
+        self.epochs = epochs
+        self.lr = lr
+        self.batch_size = batch_size
 
-    def fit(self, dataset, possible_labels=[], possible_labels_embed=[]):
-        """
-        Fit the MultiLogistic model using the training data (document embeddings and their truth labels).
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = None  # Built in fit when we know output size
 
-        Args:
-            dataset: The dataset containing the document embeddings and the true labels.
-            possible_labels (list): List of candidate labels (keywords).
-            possible_labels_embed (list): List of embeddings corresponding to the candidate labels.
-        """
-        if len(possible_labels) == 0 or len(possible_labels_embed) == 0:
-            raise ValueError("MultiLogistic requires a list of possible_labels and their embeddings.")
-        
-        self.possible_labels = [label.lower() for label in possible_labels]
-        self.possible_labels_embed = possible_labels_embed
+        self.mlb = MultiLabelBinarizer()
+        self.is_fit = False
 
-        # Ensure dataset has .truths (the ground truth labels)
-        if not hasattr(dataset, 'truths') or not isinstance(dataset.truths, list):
-            raise ValueError("Dataset must have .truths attribute (list of true labels for each document).")
-        
-        # MultiLabelBinarizer is used for multi-label classification
-        y_train = self.mlb.fit_transform(dataset.truths)  # This converts multi-label lists into binary vectors
+    def fit(self, dataset, possible_labels=None):
+        if dataset.vectors is None or dataset.truths is None:
+            raise ValueError("Dataset must have .vectors and .labels")
 
-        # Prepare the feature matrix (X_train) from document embeddings
-        X_train = np.array(dataset.vectors)
+        self.input_dim = np.shape(dataset.vectors)[1]
+        y_bin = self.mlb.fit_transform(dataset.truths)
+        num_classes = y_bin.shape[1]
 
-        # Initialize the logistic regression model for multi-label classification
-        lr_model = LogisticRegression(max_iter=1000, multi_class='ovr', solver='lbfgs')
+        X = torch.tensor(dataset.vectors, dtype=torch.float32).to(self.device)
+        y = torch.tensor(y_bin, dtype=torch.float32).to(self.device)
 
-        # Use MultiOutputClassifier to handle multi-label classification
-        self.lr_model = MultiOutputClassifier(lr_model)
-        self.lr_model.fit(X_train, y_train)  # Fit on document embeddings with multi-label binary vectors
+        # Simple logistic regression model
+        self.model = nn.Linear(self.input_dim, num_classes).to(self.device)
+
+        self.criterion = nn.BCEWithLogitsLoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
+
+        self.model.train()
+        for epoch in range(self.epochs):
+            perm = torch.randperm(X.size(0))
+            X = X[perm]
+            y = y[perm]
+            for i in range(0, X.size(0), self.batch_size):
+                xb = X[i:i+self.batch_size]
+                yb = y[i:i+self.batch_size]
+                logits = self.model(xb)
+                loss = self.criterion(logits, yb)
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
         self.is_fit = True
-
+        self.model.eval()
 
     def predict(self, dataset):
-        """
-        Predict relevant keywords for each document in the dataset.
-
-        Args:
-            dataset: The dataset containing the document embeddings.
-
-        Returns:
-            dataset: The dataset with the predicted keywords.
-        """
         if not self.is_fit:
-            raise RuntimeError("Methods must be fit before running predict.")
-        
+            raise RuntimeError("Model must be fit before predict")
         if dataset.vectors is None:
-            raise ValueError("Dataset for MultiLogistic needs vectors. Use a vectorizer.")
+            raise ValueError("Dataset must have .vectors")
 
-        # Get the predicted probabilities (one per label)
-        predicted_probs = self.lr_model.predict_proba(np.array(dataset.vectors))
+        X = torch.tensor(dataset.vectors, dtype=torch.float32).to(self.device)
+        with torch.no_grad():
+            logits = self.model(X)
+            probs = torch.sigmoid(logits).cpu().numpy()
 
-        # Get the predicted labels based on the threshold
-        predictions = []
-        for prob in predicted_probs:
-            predicted_labels = [
-                self.possible_labels[idx] 
-                for idx, p in enumerate(prob) 
-                if isinstance(p, (int, float)) and p >= self.threshold
-            ]
-            predictions.append(predicted_labels)
-
-        # Now inverse transform the predictions back to the original multi-label format
-        # Reverse the transformation from binary format back to label sets
-        predictions = np.array(predictions)
-        predicted_labels_original = self.mlb.inverse_transform(predictions)
-
-        # Store the predictions in the dataset (now with original labels)
-        dataset.results = predicted_labels_original
+        preds_bin = (probs >= self.threshold).astype(int)
+        labels = self.mlb.inverse_transform(preds_bin)
+        dataset.results = labels
         return dataset

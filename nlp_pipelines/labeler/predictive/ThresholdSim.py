@@ -15,6 +15,7 @@ class ThresholdSim(BaseMethod):
             raise ValueError(f"Invalid method type '{similarity_method}'. Supported methods are: {', '.join(self.__SUPPORTED_METHOD_TYPES)}")
         self.similarity_method = similarity_method
         self.requires_vectors = True
+        self.learned_threshold = None
         self.requires_embed_possible_labels = True
         
         
@@ -22,9 +23,25 @@ class ThresholdSim(BaseMethod):
         if len(possible_labels) == 0 or len(possible_labels_embed) == 0:
             raise ValueError("ThresholdSim requires a list of possible_labels.")
         self.possible_labels = [label.lower() for label in possible_labels]
-        # Embed the keywords
         self.possible_labels_embed = possible_labels_embed
+
+        # learn a threshold
+        match_sims = []
+        for doc_embed, true_labels in zip(dataset.vectors, dataset.truths):
+            for label in true_labels:
+                label = label.lower()
+                if label in self.possible_labels:
+                    idx = self.possible_labels.index(label)
+                    label_embed = self.possible_labels_embed[idx]
+                    sim = self.compute_similarity(doc_embed, label_embed, self.similarity_method)
+                    match_sims.append(sim)
+        if match_sims:
+            self.learned_threshold = np.mean(match_sims)
+        else:
+            # fallback
+            self.learned_threshold = 0.5
         self.is_fit = True
+
     
     def compute_similarity(self, doc_embedding, keyword_embedding, similarity_method="cosine"):
         if isinstance(doc_embedding, np.ndarray):
@@ -80,6 +97,10 @@ class ThresholdSim(BaseMethod):
             
             # Sort keywords by their similarity scores
             sorted_keywords = sorted(keyword_scores, key=lambda x: x[1], reverse=True)
-            keywords.append([kw for kw, _ in sorted_keywords])
+            
+            filtered_keywords = [
+                kw for kw, sim in sorted_keywords if sim >= self.learned_threshold
+            ]
+            keywords.append(filtered_keywords)
         dataset.results = keywords
         return dataset
