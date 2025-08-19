@@ -99,6 +99,8 @@ class Pipeline:
 
             if method.requires_embed_possible_labels:
                 method.fit(dataset, possible_labels=self.possible_labels, possible_labels_embed=self.possible_labels_embed)
+            elif method.requires_possible_labels:
+                method.fit(dataset, possible_labels=self.possible_labels)
             else:
                 method.fit(dataset)
 

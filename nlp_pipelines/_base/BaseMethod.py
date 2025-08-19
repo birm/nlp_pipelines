@@ -40,6 +40,7 @@ class BaseMethod(ABC):
         self.train_requires_truths = False
         self.requires_vectors = False
         self.requires_embed_possible_labels = False
+        self.requires_possible_labels = False
 
     def fit(self, dataset, possible_labels=[]):
         """

@@ -155,14 +155,15 @@ Located in [`labeler/`](nlp_pipelines/labeler)
 Labeler methods assign keyword labels to input documents, specifically one document may have 0+ labels. Some of these methods take a list of 'candidate labels' which are the set of labels which are possible to use, but some do not and simply extract keywords from documents. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
 
 Modules:
-- [`labeler.MultiLogistic`](nlp_pipelines/labeler/predictive/MultiLogistic.py): supervised multi-label classification for known keyword sets
-- [`labeler.ThresholdSim`](nlp_pipelines/labeler/predictive/ThresholdSim.py): similarity-based label prediction using thresholding on various distance metrics
 - [`labeler.Bm25`](nlp_pipelines/labeler/extractive/Bm25.py): BM25-based keyword extraction
 - [`labeler.Yake`](nlp_pipelines/labeler/extractive/Yake.py): YAKE-based keyword extraction
 - [`labeler.MultiRake`](nlp_pipelines/labeler/extractive/MultiRake.py): MultiRake-based keyword extraction
 - [`labeler.KeyBert`](nlp_pipelines/labeler/extractive/KeyBert.py): KeyBERT-based keyword extraction
 - [`labeler.TfidfTopN`](nlp_pipelines/labeler/extractive/TfidfTopN.py): TF-IDF Top-N keyword extraction
-- [`labeler.SimpleNNLabeler`](nlp_pipelines/labeler/extractive/SimpleNNLabeler.py): Using a neural network to get a n dim vector, and picking those over a threhsold. Train with lots of data! (1. linear input dim [auto detected from the input vector] to hidden dim [set, default 128] with relu activation, 2. dropout (0.2), 3. linear from hidden dim to output dim (number of possible labels), 4. argmax)
+- [`labeler.MultiLogistic`](nlp_pipelines/labeler/predictive/MultiLogistic.py): supervised multi-label classification for known keyword sets
+- [`labeler.ThresholdSim`](nlp_pipelines/labeler/predictive/ThresholdSim.py): similarity-based label prediction using thresholding on various distance metrics
+- [`classifier.BartTag`](nlp_pipelines/labeler/predictive/BartTag.py): BART zero shot classification, configured for returning all labels over a threshold score (fit and predict only require texts)
+- [`labeler.SimpleNNLabeler`](nlp_pipelines/labeler/predictive/SimpleNNLabeler.py): Using a neural network to get a n dim vector, and picking those over a threhsold. Train with lots of data! (1. linear input dim [auto detected from the input vector] to hidden dim [set, default 128] with relu activation, 2. dropout (0.2), 3. linear from hidden dim to output dim (number of possible labels), 4. argmax)
 
 ---
 
@@ -173,7 +174,7 @@ Located in [`classifier/`](nlp_pipelines/classifier)
 Classification methods assign labels to documents using a set of input possible labels, specifically each document has exactly one class. The distinction with "Clusterer" is that classifiers group in a way which is aligned with meaning, while clusterers find groups inherent in the data directly. All methods must be trained (even unsupervised ones) using the `.train(dataset)` method. Predictions are made using `.predict(dataset)`, and results can be converted into new datasets for further processing.
 
 Modules:
-- [`classifier.BartTag`](nlp_pipelines/classifier/BartTag.py): BART zero shot classification (fit and predict only require texts)
+- [`classifier.BartTag`](nlp_pipelines/classifier/BartTag.py): BART zero shot classification, configured for single best fit (fit and predict only require texts)
 - [`classifier.LabelProp`](nlp_pipelines/classifier/LabelProp.py): supervised label propagation model (fit requires: vectors, true labels; predict requires vectors)
 - [`classifier.Xgboost`](nlp_pipelines/classifier/Xgboost.py): supervised xgboost model (fit requires: vectors, labels; predict requires vectors)
 - [`classifier.SimpleNNClassifier`](nlp_pipelines/classifier/SimpleNNClassifier.py): Using a neural network to get a n dim vector, and picking the top one. Train with lots of data! (1. linear input dim [auto detected from the input vector] to hidden dim [set, default 128] with relu activation, 2. dropout (0.2), 3. linear from hidden dim to output dim (number of possible labels), 4. sigmoid + thredhold)

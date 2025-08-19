@@ -25,6 +25,7 @@ class BaseVectorizer(ABC):
         self.train_requires_truths = False # I don't think this should ever be true for vectorizer
         self.requires_vectors = False # also always false
         self.requires_embed_possible_labels = False
+        self.requires_possible_labels = False # always false
 
     def fit(self, dataset):
         """
