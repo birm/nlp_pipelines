@@ -10,6 +10,7 @@ class BartTagLabeler(BaseMethod):
         self.internal_model_name = "facebook/bart-large-mnli"
         self.classifier = pipeline("zero-shot-classification", model=self.internal_model_name)
         self.threshold = threshold
+        self.requires_possible_labels = True
 
     # predict can use default method.
     
@@ -27,13 +28,5 @@ class BartTagLabeler(BaseMethod):
     def predict(self, dataset):
         if not self.is_fit:
             raise RuntimeError("Methods must be fit before running predict.")
-        try:
-            results = self._generate_tags_bart(dataset.texts)
-        except Exception as e:
-            self.logger.error(f"Batch prediction failed: {e}")
-            return dataset
-        dataset.results = [
-            [label for label, score in zip(res["labels"], res["scores"]) if score > self.threshold]
-            for res in results
-        ]
+        dataset.results = [self._generate_tags_bart(x) for x in dataset.texts]
         return dataset

@@ -20,7 +20,7 @@ class BartTag(BaseMethod):
             return ""
         try:
             result = self.classifier(text, candidate_labels=self.possible_labels)
-            return result # top label
+            return result['labels'][0] # top label
         except Exception as e:
             self.logger.warning(f"Skipping text due to error: {e}")
             return ""

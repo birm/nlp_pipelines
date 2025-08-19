@@ -45,9 +45,9 @@ class ThresholdSim(BaseMethod):
     
     def compute_similarity(self, doc_embedding, keyword_embedding, similarity_method="cosine"):
         if isinstance(doc_embedding, np.ndarray):
-            doc_embedding = torch.tensor(doc_embedding)
+            doc_embedding = torch.tensor(doc_embedding, dtype=torch.float32)
         if isinstance(keyword_embedding, np.ndarray):
-            keyword_embedding = torch.tensor(keyword_embedding)
+            keyword_embedding = torch.tensor(keyword_embedding, dtype=torch.float32)
         # Ensure both embeddings are at least 2D tensors (shape: [1, d])
         doc_embedding = doc_embedding.unsqueeze(0) if doc_embedding.dim() == 1 else doc_embedding
         keyword_embedding = keyword_embedding.unsqueeze(0) if keyword_embedding.dim() == 1 else keyword_embedding
